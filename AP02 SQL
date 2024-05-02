@@ -1,0 +1,28 @@
+--ex01
+
+SELECT numero_unidade_producao, CAST (inicio as DATE),   sum(DATEDIFF(MINUTE , inicio,fim)/60.0 )
+FROM REGISTRO_FALHA rf
+left join UNIDADE_PRODUCAO up
+ON rf.numero_unidade_producao = up.numero 
+WHERE severidade = 1
+GROUP BY numero_unidade_producao, CAST (inicio as DATE)
+
+--ex02
+
+SELECT numero_unidade_producao, CAST (inicio as DATE),   24-sum(DATEDIFF(MINUTE , inicio,fim)/60.0 )
+FROM REGISTRO_FALHA rf
+left join UNIDADE_PRODUCAO up
+ON rf.numero_unidade_producao = up.numero 
+WHERE severidade = 1
+GROUP BY numero_unidade_producao, CAST (inicio as DATE)
+
+--ex03
+
+SELECT numero_unidade_producao, CAST (inicio as DATE),   (24-sum(DATEDIFF(MINUTE , inicio,fim)/60.0 ))/24
+FROM REGISTRO_FALHA rf
+left join UNIDADE_PRODUCAO up
+ON rf.numero_unidade_producao = up.numero 
+WHERE severidade = 1
+GROUP BY numero_unidade_producao, CAST (inicio as DATE)
+
+--ex04
