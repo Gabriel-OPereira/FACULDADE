@@ -1,103 +1,68 @@
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Date,
+    ForeignKey,
+    Float,
+    Boolean
+)
+from sqlalchemy.orm import DeclarativeBase
 
- #%%  
-import json
-from abstract_etl import AbstractETL
-from classes import *
-import pandas as pd
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
 
- #%%  
-class ETL(AbstractETL):
-    def __init__(self, source: str, target: str):
-        super().__init__(source, target)
+class Base(DeclarativeBase):
+    pass
 
-    def extract(self):           
-        with open(self.source, 'r') as arquivo:
-            dados_arquivo = json.load(arquivo)
-        self.extracted = dados_arquivo
 
-    def transform(self):
-        dicionario = {}
-        for elemento in self.extracted:
-            chave= elemento['tipo']
-            lista_atributos = elemento['atributos']
-            df = pd.DataFrame(lista_atributos)
-            dicionario[chave]=df
-        self.transformed = dicionario
+class UNIDADE_PRODUCAO(Base):
 
-    def load(self):
-        engine = create_engine(self.target)
-        Session = sessionmaker(bind=engine)
-        session = Session()
+    __tablename__ = "UNIDADE_PRODUCAO"
+    numero = Column(Integer, primary_key=True, autoincrement=False)
+    peca_hora_nominal =  Column(Float, nullable=False)
+
+class REGISTRO_FALHA(Base):
     
-        df_up = self.transformed['UNIDADE_PRODUCAO']
-        for indice,linha in df_up.iterrows():
-            numero = linha['numero']
-            pchn=linha['peca_hora_nominal']
-            up = UNIDADE_PRODUCAO(numero=numero,peca_hora_nominal=pchn)
-            session.add(up)
-        session.commit()
+    __tablename__ = "REGISTRO_FALHA"
+    id = Column(Integer, primary_key=True, autoincrement=False)
+    severidade =  Column(Boolean, nullable=False)
+    inicio =  Column(Date, nullable=False)
+    fim =  Column(Date, nullable=False)
+    numero_unidade_producao = Column(Integer, ForeignKey("UNIDADE_PRODUCAO.numero"), nullable=False, autoincrement=False)
 
-        df_rg = self.transformed['REGISTRO FALHA']
-        for indice,linha in df_rg.iterrows():
-            id = linha['id']
-            severidade=linha['severidade']
-            inicio = linha['inicio']
-            fim=linha['fim']
-            numero_unidade_producao = linha['numero_unidade_producao']
-            rg = REGISTRO_FALHA(id=id,severidade = severidade, inicio = inicio, fim = fim, numero_unidade_producao = numero_unidade_producao)
-            session.add(rg)
-        session.commit()
+class PECA(Base):
+    __tablename__ = "PECA"
+    numero = Column(Integer, primary_key=True, autoincrement=False)
+    status = Column(String, nullable=False)
+    inicio_fabricacao = Column(Date,nullable=False)
+    fim_fabricacao = Column(Date,nullable=False)
+    numero_unidade_producao = Column(Integer, ForeignKey ("UNIDADE_PRODUCAO.numero") ,nullable=False,autoincrement=False)
 
-        df_pc = self.transformed['PECA']
-        for indice,linha in df_pc.iterrows():
-            numero = linha['numero']
-            status=linha['status']
-            inicio_fabricacao = linha['inicio_fabricacao']
-            fim_fabricacao=linha['fim_fabricacao']
-            numero_unidade_producao = linha['numero_unidade_producao']
-            pc = PECA(numero = numero, status = status, inicio_fabricacao=inicio_fabricacao, fim_fabricacao = fim_fabricacao, numero_unidade_producao = numero_unidade_producao)
-            session.add(pc)
-        session.commit()
+class SOPRADORA(Base):
+    __tablename__ = "SOPRADORA"
+    numero = Column(Integer, primary_key=True, autoincrement=False)
+    vazao_sopro = Column(Float, nullable=False)
+    pressao_sopro = Column(Float, nullable=False)
 
-        df_sp = self.transformed['SOPRADORA']
-        for indice,linha in df_pc.iterrows():
-            numero = linha['numero']
-            vazao_sopro=linha['vazao_sopro']
-            pressao_sopro = linha['pressao_sopro']
-            sp = SOPRADORA(numero = numero, vazao_sopro = vazao_sopro, pressao_sopro = pressao_sopro)
-            session.add(sp)
-        session.commit()
+class FRESADORA(Base):
+    __tablename__ = "FRESADORA"
+    numero = Column(Integer, primary_key=True, autoincrement=False)
+    velocidade_rotacao = Column(Float, nullable=False)
+    profundidade_corte = Column(Float, nullable=False)
 
-        df_fs = self.transformed['FRESADORA']
-        for indice,linha in df_pc.iterrows():
-            numero = linha['numero']
-            velocidade_rotacao = linha['velocidade_rotacao']
-            profundidade_corte = linha['profundidade_corte']
-            fs = FRESADORA(numero = numero, velocidade_rotacao = velocidade_rotacao, profundidade_corte = profundidade_corte)
-            session.add(fs)
-        session.commit()
 
-        df_tc = self.transformed['TORNO_CNC']
-        for indice,linha in df_pc.iterrows():
-            numero = linha['numero']
-            velocidade_rotacao = linha['velocidade_rotacao']
-            tolerancia = linha['tolerancia']
-            tc = TORNO_CNC(numero = numero, velocidade_rotacao = velocidade_rotacao, tolerancia = tolerancia)
-            session.add(tc)
-        session.commit()
-
-        df_i3d = self.transformed['IMPRESSORA_3D']
-        for indice,linha in df_pc.iterrows():
-            numero = linha['numero']
-            espessura_camada = linha['espessura_camada']
-            tipo_material = linha['tipo_material']
-            i3d = IMPRESSORA_3D(numero = numero, espessura_camada = espessura_camada, tipo_material = tipo_material)
-            session.add(i3d)
-        session.commit()
+class TORNO_CNC(Base):
+    __tablename__ = "TORNO_CNC"
+    numero = Column(Integer, primary_key=True, autoincrement=False)
+    velocidade_rotacao = Column(Float, nullable=False)
+    tolerancia = Column(Float, nullable=False)
+    
+class IMPRESSORA_3D(Base):
+    __tablename__ = "IMPRESSORA_3D"
+    numero = Column(Integer, primary_key=True, autoincrement=False)
+    espessura_camada = Column(Float, nullable=False)
+    tipo_material = Column(String, nullable=False)
 
 
 
 
-
+ 
