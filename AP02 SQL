@@ -35,11 +35,7 @@ GROUP BY UP.numero, UP.peca_hora_nominal;
 
 
 --ex05
-  SELECT COUNT(p.status) * 100 / COUNT (p.numero)
-  FROM PECA p  
-  
--- ou
-   
+ 
   SELECT  CAST((COUNT(CASE WHEN p.status = 'Aprovada' THEN 1 END) * 100.0 / COUNT(p.numero)) AS DECIMAL(3,0)) AS qualidade_percentual
   FROM PECA p  
   WHERE p.status = 'Aprovada'
