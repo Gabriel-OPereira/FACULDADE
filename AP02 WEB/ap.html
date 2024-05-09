@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AP2.1 Desenvolvimento Web</title>
+</head>
+<body>
+  <h1>Consulta de carros de suas respectivas marcas: </h1>
+  <label for="marca-entrada">Pesquisar uma marca:</label>
+  <input type="text" id="marca-entrada" oninput="pesquisarMarca()">
+  <table id="tabela-marcas">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Nome</th>
+        <th>Ação</th>
+      </tr>
+    </thead>
+    <tbody id="corpo-marcas">
+
+    </tbody>
+  </table>
+
+  <h2>Carros da Marca:</h2>
+  <table id="tabela-carros">
+    <thead>
+      <tr>
+        <th>Modelos:</th>
+      </tr>
+    </thead>
+    <tbody id="corpo-carros">
+
+    </tbody>
+  </table>
+
+  <script src="ap.js"></script>
+</body>
+</html>
