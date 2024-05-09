@@ -26,3 +26,55 @@ WHERE severidade = 1
 GROUP BY numero_unidade_producao, CAST (inicio as DATE)
 
 --ex04
+
+SELECT UP.numero, CAST((COUNT(P.numero) * 3600.0 / (DATEDIFF(MINUTE, MIN(P.inicio_fabricacao),
+MAX(P.fim_fabricacao)) / 60.0)) * 100.0 / (COUNT(P.numero) * UP.peca_hora_nominal) AS DECIMAL(5,2)) AS produtividade
+FROM UNIDADE_PRODUCAO UP
+LEFT JOIN PECA P ON UP.numero = P.numero_unidade_producao
+GROUP BY UP.numero, UP.peca_hora_nominal;
+
+
+--ex05
+  SELECT COUNT(p.status) * 100 / COUNT (p.numero)
+  FROM PECA p  
+  
+-- ou
+   
+  SELECT  CAST((COUNT(CASE WHEN p.status = 'Aprovada' THEN 1 END) * 100.0 / COUNT(p.numero)) AS DECIMAL(3,0)) AS qualidade_percentual
+  FROM PECA p  
+  WHERE p.status = 'Aprovada'
+  GROUP BY p.status
+  
+  
+  
+--ex06
+-- não consegui colocar em uma view
+SELECT DP.numero_unidade_producao, DP.data, DP.disponibilidade, PD.produtividade, QL.qualidade,
+CAST((DP.disponibilidade * PD.produtividade * QL.qualidade) / 10000.0 AS DECIMAL(10,2)) AS OEE
+FROM
+(
+SELECT RF.numero_unidade_producao, CAST(RF.inicio AS DATE) AS data, (24 - SUM(DATEDIFF(MINUTE, RF.inicio, RF.fim) / 60.0)) / 24 AS disponibilidade
+FROM REGISTRO_FALHA RF
+LEFT JOIN UNIDADE_PRODUCAO UP 
+ON RF.numero_unidade_producao = UP.numero 
+WHERE RF.severidade = 1
+GROUP BY RF.numero_unidade_producao, CAST(RF.inicio AS DATE)
+) AS DP
+
+JOIN
+(
+SELECT UP.numero AS numero_unidade_producao,
+CAST((COUNT(P.numero) * 3600.0 / (DATEDIFF(MINUTE, MIN(P.inicio_fabricacao), MAX(P.fim_fabricacao)) / 60.0)) * 100.0 /
+(COUNT(P.numero) * UP.peca_hora_nominal) AS DECIMAL(5,2)) AS produtividade
+FROM UNIDADE_PRODUCAO UP
+LEFT JOIN PECA P 
+ON UP.numero = P.numero_unidade_producao
+GROUP BY UP.numero, UP.peca_hora_nominal
+) AS PD ON DP.numero_unidade_producao = PD.numero_unidade_producao
+
+JOIN
+(SELECT numero_unidade_producao,
+CAST(COUNT(CASE WHEN status = 'Aprovada' THEN 1 END) * 100.0 / COUNT(numero) AS DECIMAL(5,2)) AS qualidade
+FROM PECA
+GROUP BY numero_unidade_producao
+) AS QL ON DP.numero_unidade_producao = QL.numero_unidade_producao;
