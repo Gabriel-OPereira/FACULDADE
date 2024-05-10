@@ -19,8 +19,8 @@ function exibiMarca(dados) {
   dados.forEach(marca => {
     const linha = document.createElement('tr');
     linha.innerHTML = `
-      <td>${marca.codigo}</td>
-      <td>${marca.nome}</td>
+      <td style = "padding-left: 30px;">${marca.codigo}</td>
+      <td style = "padding-left: 80px;">${marca.nome}</td>
       <td><button onclick="exibirCarros('${marca.codigo}')">Ver Carros</button></td>
     `;
     corpoMarcas.appendChild(linha);
